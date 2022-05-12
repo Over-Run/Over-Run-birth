@@ -1,3 +1,12 @@
+# over-run-files
+Children/.idea
+Children/minecraft
+link/minecraft
+link/.idea
+placenta/minecraft
+placenta/.idea
+mom/minecraft
+mom/.idea
 # Compiled class file
 *.class
 
