@@ -12,6 +12,10 @@ public class Url {
 	public static final String url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 	public static final String user_dir = System.getProperty("user.dir");
 	public static final char separatorChar = File.separatorChar;
+	public static final String split = url.split("/")[url.split("/").length - 1];
+	public static final String minecraft = user_dir + separatorChar + "minecraft";
+	public static final String version = minecraft + separatorChar + "versions";
+	public static final String name = minecraft + separatorChar + split;
 	public static void download(String url,String name) throws IOException {
 		var connection = new URL(url).openConnection();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -27,100 +31,57 @@ public class Url {
 
 	}
 
+	public static Runnable basic_write(Map<String, String> version_manifest, String contains) {
+		return () -> {
+			for (var i : version_manifest.keySet()) {
+				if (i.contains(contains)) {
+					System.out.println(i + " " + version_manifest.get(i));
+					var versionFileName = version + separatorChar + i.replace(" ", "");
+					if (!new File(versionFileName).exists()) {
+						new File(versionFileName).mkdirs();
+					}
+					try {
+						var dw = versionFileName + separatorChar + i.replace(" ", "") + ".json";
+						if (new File(dw).exists()) {
+							readSs(dw);
+							continue;
+						}
+						download(version_manifest.get(i), dw);
+						readSs(dw);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+	}
+
 
 	public static void DVersion_manifest() throws IOException {
-		String split = url.split("/")[url.split("/").length - 1];
-		String fileName = user_dir + separatorChar + "minecraft";
-		String name = fileName + separatorChar + split;
-		if (!new File(fileName).exists()) {
-			new File(fileName).mkdirs();
+		if (!new File(minecraft).exists()) {
+			new File(minecraft).mkdirs();
 		}
 		if (!new File(name).exists()) {
 			download(url, name);
 		}
 		readS(name);
 		Map<String, String> version_manifest = getVersion_manifest_mcVersion(name);
-		Thread thread, thread1;
-		Runnable runnable, runnable1;
-		runnable = () -> {
-			for (var i : version_manifest.keySet()) {
-				if (i.contains("1.")) {
-					System.out.println(i + " " + version_manifest.get(i));
-					var versionFileName = user_dir + separatorChar + "minecraft"+ separatorChar + "versions" + separatorChar + i.replace(" ", "");
-					if (!new File(versionFileName).exists()) {
-						new File(versionFileName).mkdirs();
-					}
-					try {
-						var dw = versionFileName + separatorChar + i.replace(" ", "_") + ".json";
-						if (new File(dw).exists()) {
-							continue;
-						}
-						download(version_manifest.get(i), dw);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			for (var i : version_manifest.keySet()) {
-				var versionFileName = user_dir + separatorChar + "minecraft"+ separatorChar + "versions" + separatorChar + i.replace(" ", "");
-				if (!new File(versionFileName).exists()) {
-					new File(versionFileName).mkdirs();
-				}
-				if (i.contains("1.")) {
-					var dw = versionFileName + separatorChar + i.replace(" ", "_") + ".json";
-					try {
-						readSs(dw);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		};
-		thread = new Thread(runnable, "1.x.x");
+		//将来选择多线程取代
+		Thread thread, thread1, thread2, thread3,thread4;
+		thread = new Thread(basic_write(version_manifest, "1."), "release");
 		thread.start();
-		runnable1 = () -> {
-			for (var i : version_manifest.keySet()) {
-				if (i.contains("w")) {
-					System.out.println(i + " " + version_manifest.get(i));
-					var versionFileName = user_dir + separatorChar + "minecraft"+ separatorChar + "versions" + separatorChar + i.replace(" ", "");
-					if (!new File(versionFileName).exists()) {
-						new File(versionFileName).mkdirs();
-					}
-					try {
-						var dw = versionFileName + separatorChar + i.replace(" ", "_") + ".json";
-						if (new File(dw).exists()) {
-							continue;
-						}
-						download(version_manifest.get(i), dw);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			for (var i : version_manifest.keySet()) {
-				var versionFileName = user_dir + separatorChar + "minecraft"+ separatorChar + "versions" + separatorChar + i.replace(" ", "");
-				if (!new File(versionFileName).exists()) {
-					new File(versionFileName).mkdirs();
-				}
-				if (i.contains("w")) {
-					var dw = versionFileName + separatorChar + i.replace(" ", "_") + ".json";
-					try {
-						readSs(dw);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		};
-		thread1 = new Thread(runnable1, "snapshot");
+		thread1 = new Thread(basic_write(version_manifest, "w"), "snapshot");
 		thread1.start();
-
-		/*ReadJson.formatter(name);*/
+		thread2 = new Thread(basic_write(version_manifest, "c0"), "old");
+		thread2.start();
+		thread3 = new Thread(basic_write(version_manifest, "inf"),"infinite");
+		thread3.start();
+		thread4 = new Thread(basic_write(version_manifest, "rd"), "release_dev");
+		thread4.start();
 	}
 
 	public static Map<String, String> getVersion_manifest_mcVersion(String name) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(name + ".birth"));
-		BufferedWriter bw = new BufferedWriter(new FileWriter(name + ".copy.birth"));
 		String line;
 		Map<String, String> version_manifest = new HashMap<>();
 		String version = null, url = null;

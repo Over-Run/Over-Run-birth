@@ -34,7 +34,7 @@ public class ReadJson {
 		var line = br.lines();
 		StringBuilder sb = new StringBuilder();
 		line.forEach(sb::append);
-		bw.write(sb.toString().replace("{", "").replace("}", "\n").replace("[", "\n").replace(",", "\n"));
+		bw.write(sb.toString().replace("{", "").replace("}", "\n").replace("[", "\n").replace("]", "").replace(",", "\n").replace("\"", ""));
 		bw.close();
 		br.close();
 
