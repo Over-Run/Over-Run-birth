@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static org.overrun.utls.ReadJson.readS;
 import static org.overrun.utls.ReadJson.readSs;
@@ -66,18 +68,18 @@ public class Url {
 		}
 		readS(name);
 		Map<String, String> version_manifest = getVersion_manifest_mcVersion(name);
-		//将来选择多线程取代
-		Thread thread, thread1, thread2, thread3,thread4;
-		thread = new Thread(basic_write(version_manifest, "1."), "release");
-		thread.start();
-		thread1 = new Thread(basic_write(version_manifest, "w"), "snapshot");
-		thread1.start();
-		thread2 = new Thread(basic_write(version_manifest, "c0"), "old");
-		thread2.start();
-		thread3 = new Thread(basic_write(version_manifest, "inf"),"infinite");
-		thread3.start();
-		thread4 = new Thread(basic_write(version_manifest, "rd"), "release_dev");
-		thread4.start();
+		//线程池执行
+		Executor  executor = Executors.newCachedThreadPool();
+		Executor  executor1 = Executors.newCachedThreadPool();
+		Executor  executor2 = Executors.newCachedThreadPool();
+		Executor  executor3 = Executors.newCachedThreadPool();
+		Executor  executor4 = Executors.newCachedThreadPool();
+
+		executor.execute(basic_write(version_manifest, "1."));
+		executor1.execute(basic_write(version_manifest, "w"));
+		executor2.execute(basic_write(version_manifest, "c0"));
+		executor3.execute(basic_write(version_manifest, "inf"));
+		executor4.execute(basic_write(version_manifest, "rd"));
 	}
 
 	public static Map<String, String> getVersion_manifest_mcVersion(String name) throws IOException {
