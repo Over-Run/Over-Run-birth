@@ -69,17 +69,13 @@ public class Url {
 		readS(name);
 		Map<String, String> version_manifest = getVersion_manifest_mcVersion(name);
 		//线程池执行
-		Executor  executor = Executors.newCachedThreadPool();
-		Executor  executor1 = Executors.newCachedThreadPool();
-		Executor  executor2 = Executors.newCachedThreadPool();
-		Executor  executor3 = Executors.newCachedThreadPool();
-		Executor  executor4 = Executors.newCachedThreadPool();
+		Executor executor5 = Executors.newFixedThreadPool(5);
+		executor5.execute(basic_write(version_manifest, "1."));
+		executor5.execute(basic_write(version_manifest, "w"));
+		executor5.execute(basic_write(version_manifest, "c0"));
+		executor5.execute(basic_write(version_manifest, "inf"));
+		executor5.execute(basic_write(version_manifest, "rd"));
 
-		executor.execute(basic_write(version_manifest, "1."));
-		executor1.execute(basic_write(version_manifest, "w"));
-		executor2.execute(basic_write(version_manifest, "c0"));
-		executor3.execute(basic_write(version_manifest, "inf"));
-		executor4.execute(basic_write(version_manifest, "rd"));
 	}
 
 	public static Map<String, String> getVersion_manifest_mcVersion(String name) throws IOException {
